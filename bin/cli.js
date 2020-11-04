@@ -42,9 +42,9 @@ commander
         
         cd qcweb && npm install
         
-        then you can start the project
+        then you can start the project and use config.json to config your project and user
         
-        npm run start
+        node ./bin/www
         `));
       }
     });
@@ -75,18 +75,9 @@ async function deploy(url, describe) {
       `));
     } else {
       if (body.code !== 0) {
-        console.log(chalk.red(`
-                         deploy failed
-        code=${body.code}
-        codeMessage=${body.codeMessage}
-        
-        `));
+        printFailed('deploy failed',body);
       } else {
-        console.log(chalk.green(`
-                         deploy success
-        ${body.data}
-        
-        `));
+        printSuccess(`rollback success`,body);
       }
     }
   });
@@ -121,17 +112,9 @@ commander
       `));
       } else {
         if (body.code !== 0) {
-          console.log(chalk.red(`
-                          rollback failed
-          code=${body.code}
-          codeMessage=${body.codeMessage}
-          `));
+          printFailed('rollback failed',body);
         } else {
-          console.log(chalk.green(`
-                          rollback success
-          ${body.data}
-          
-          `));
+          printSuccess(`rollback success`,body);
         }
       }
     });
@@ -151,23 +134,29 @@ commander
       json: true
     }, function (err, rep, body) {
       if (body.code !== 0) {
-        console.log(chalk.red(`
-                          history failed
-        code=${body.code}
-        codeMessage=${body.codeMessage}
-        `));
+        printFailed('history failed',body);
       } else {
-        console.log(chalk.green(`
-        historyId                   describe                        uploadTime
-        `));
+        console.log(chalk.green(`historyId                             uploadUser         uploadTime    describe`));
         body.data.list.forEach(function (history) {
-          console.log(chalk.green(`
-        ${history.id}               ${history.describe}             ${history.createTime}
-        `));
+          console.log(chalk.green(`${history.id}  ${history.operator}   ${history.createTime}   ${history.describe}`));
         });
 
       }
     })
   });
+
+function printFailed(titile,body){
+  console.log(chalk.red(`${titile}`));
+  console.log(chalk.red(`code=${body.code}`));
+  console.log(chalk.red(`codeMessage=${body.codeMessage}`));
+  console.log(chalk.red(`data=${body.data}`));
+}
+
+function printSuccess(titile,body){
+  console.log(chalk.green(`${titile}`));
+  console.log(chalk.green(`code=${body.code}`));
+  console.log(chalk.green(`codeMessage=${body.codeMessage}`));
+  console.log(chalk.green(`data=${body.data}`));
+}
 
 commander.parse(process.argv);
