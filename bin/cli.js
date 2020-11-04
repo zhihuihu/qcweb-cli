@@ -69,10 +69,7 @@ async function deploy(url, describe) {
   }
   request.post({url: url + routerUrl, formData: formData, json: true}, function (err, rep, body) {
     if (err) {
-      console.log(chalk.red(`
-                         deploy failed
-      ${err}
-      `));
+      printError("deploy failed",err);
     } else {
       if (body.code !== 0) {
         printFailed('deploy failed',body);
@@ -89,10 +86,7 @@ commander
   .action(function (url, describe) {
     deploy(url, describe)
       .catch(function (err) {
-        console.log(chalk.red(`
-                          deploy failed
-        ${err}
-        `));
+        printError("deploy failed",err);
       });
   });
 
@@ -106,10 +100,7 @@ commander
     }
     request.post({url: url + routerUrl, form: form, json: true}, function (err, rep, body) {
       if (err) {
-        console.log(chalk.red(`
-                         rollback failed
-      ${err}
-      `));
+        printError("rollback failed",err);
       } else {
         if (body.code !== 0) {
           printFailed('rollback failed',body);
@@ -133,27 +124,36 @@ commander
       },
       json: true
     }, function (err, rep, body) {
-      if (body.code !== 0) {
-        printFailed('history failed',body);
-      } else {
-        console.log(chalk.green(`historyId                             uploadUser         uploadTime    describe`));
-        body.data.list.forEach(function (history) {
-          console.log(chalk.green(`${history.id}  ${history.operator}   ${history.createTime}   ${history.describe}`));
-        });
-
+      if(err){
+        printError("history failed",err);
+      }else{
+        if (body.code !== 0) {
+          printFailed('history failed',body);
+        } else {
+          console.log(chalk.green(`historyId                             uploadUser         uploadTime    describe`));
+          body.data.list.forEach(function (history) {
+            console.log(chalk.green(`${history.id}  ${history.operator}   ${history.createTime}   ${history.describe}`));
+          });
+        }
       }
+
     })
   });
 
-function printFailed(titile,body){
-  console.log(chalk.red(`${titile}`));
+function printError(title,err){
+  console.log(chalk.red(`${title}`));
+  console.log(chalk.red(`${err}`));
+}
+
+function printFailed(title,body){
+  console.log(chalk.red(`${title}`));
   console.log(chalk.red(`code=${body.code}`));
   console.log(chalk.red(`codeMessage=${body.codeMessage}`));
   console.log(chalk.red(`data=${body.data}`));
 }
 
-function printSuccess(titile,body){
-  console.log(chalk.green(`${titile}`));
+function printSuccess(title,body){
+  console.log(chalk.green(`${title}`));
   console.log(chalk.green(`code=${body.code}`));
   console.log(chalk.green(`codeMessage=${body.codeMessage}`));
   console.log(chalk.green(`data=${body.data}`));
