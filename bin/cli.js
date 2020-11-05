@@ -74,7 +74,7 @@ async function deploy(url, describe) {
       if (body.code !== 0) {
         printFailed('deploy failed',body);
       } else {
-        printSuccess(`rollback success`,body);
+        printSuccess(`deploy success`,body);
       }
     }
   });
