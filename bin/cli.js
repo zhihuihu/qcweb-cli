@@ -51,8 +51,10 @@ commander
   });
 
 async function deploy(url, describe) {
+  const spinner = ora('start deploying...').start();
   const routerUrl = '/deploy/new';
   if (!fs.existsSync(resolve('./') + '/dist')) {
+    spinner.fail('deployment failed');
     console.log(chalk.red(`
                           package failed
       The "dist" folder not exists at the current path`
@@ -69,11 +71,14 @@ async function deploy(url, describe) {
   }
   request.post({url: url + routerUrl, formData: formData, json: true}, function (err, rep, body) {
     if (err) {
+      spinner.fail('deployment failed');
       printError("deploy failed",err);
     } else {
       if (body.code !== 0) {
+        spinner.fail('deployment failed');
         printFailed('deploy failed',body);
       } else {
+        spinner.succeed('deployment success');
         printSuccess(`deploy success`,body);
       }
     }
@@ -94,17 +99,21 @@ commander
   .command('rollback <url> <historyId>')
   .description('rollback project to historyId version')
   .action(function (url, historyId) {
+    const spinner = ora('start rollback...').start();
     const routerUrl = '/deploy/rollback';
     let form = {
       historyId: historyId,
     }
     request.post({url: url + routerUrl, form: form, json: true}, function (err, rep, body) {
       if (err) {
+        spinner.fail('rollback failed');
         printError("rollback failed",err);
       } else {
         if (body.code !== 0) {
+          spinner.fail('rollback failed');
           printFailed('rollback failed',body);
         } else {
+          spinner.succeed('rollback success');
           printSuccess(`rollback success`,body);
         }
       }
@@ -115,6 +124,7 @@ commander
   .command('history <url> <top>')
   .description('show project deploy history')
   .action(function (url, top) {
+    const spinner = ora('start querying history...').start();
     const routerUrl = '/deploy/list';
     request.get({
       url: url + routerUrl,
@@ -125,11 +135,14 @@ commander
       json: true
     }, function (err, rep, body) {
       if(err){
+        spinner.fail('querying history failed');
         printError("history failed",err);
       }else{
         if (body.code !== 0) {
+          spinner.fail('querying history failed');
           printFailed('history failed',body);
         } else {
+          spinner.succeed('querying history success');
           console.log(chalk.green(`historyId                             uploadUser         uploadTime    describe`));
           body.data.list.forEach(function (history) {
             console.log(chalk.green(`${history.id}  ${history.operator}   ${history.createTime}   ${history.describe}`));
