@@ -1,3 +1,38 @@
+### 工具介绍
+本工具需要和 qcweb 服务端一起配合使用，工具已集成客户端和服务端功能，主要命令如下
+
+```shell script
+qcweb -h
+
+Usage: cli [options] [command]
+
+#Options:
+#  -V, --version               output the version number
+#  -h, --help                  output usage information
+
+#Commands:
+#  server-init                 init server project in current location
+#  deploy <url> <describe>     package .zip file and deploy new version to server
+#  rollback <url> <historyId>  rollback project to historyId version
+#  history <url> <top>         show project deploy history
+
+# url 参数是客户端连接远程服务的地址采用basic认证的 `http://<projectId>:<userId>@127.0.0.1:3000` 
+```
+
+#### 安装
+qcweb-cli 工具，部署 qcweb 平台是非常容易的 
+```shell script
+# 安装脚手架本地代码模式link 切换到该项目根目录执行
+npm link
+# 全局在线安装脚手架
+npm install -g qcweb-cli
+# 安装服务端 会在执行命令的文件夹下面生成 qcweb 文件夹
+qcweb server-init
+# 执行 npm install
+# 按照个人需求配置 config.json 文件
+# 执行 node ./bin/www 平台即可运行成功
+```
+
 ### qcweb 静态网站发布脚手架
 ```shell script
 * projectId 项目ID
@@ -5,6 +40,7 @@
 * describe 更新描述
 * top 查看多少条
 * historyId 历史版本ID
+* url 参数是客户端连接远程服务的地址采用basic认证的 `http://<projectId>:<userId>@127.0.0.1:3000` 
 
 
 * 发布新版本 qcweb deploy "http://<projectId>:<userId>@127.0.0.1:3000" "<describe>"
