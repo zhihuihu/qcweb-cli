@@ -16,7 +16,7 @@ const qcwebProject = {
 }
 
 // 工具版本号
-commander.version('1.0.0');
+commander.version('1.0.2');
 
 commander
   .command('server-init')
@@ -143,6 +143,8 @@ commander
           printFailed('history failed',body);
         } else {
           spinner.succeed('querying history success');
+          console.log(chalk.green(`projectName: ${body.data.project.name} ; checkDir: ${body.data.project.checkDir}`));
+
           console.log(chalk.green(`historyId                             uploadUser         uploadTime    describe`));
           body.data.list.forEach(function (history) {
             console.log(chalk.green(`${history.id}  ${history.operator}   ${history.createTime}   ${history.describe}`));
