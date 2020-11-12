@@ -16,7 +16,7 @@ const qcwebProject = {
 }
 
 // 工具版本号
-commander.version('1.0.2');
+commander.version('1.0.3');
 
 commander
   .command('server-init')
@@ -51,6 +51,18 @@ commander
   });
 
 async function deploy(url, describe) {
+  while (!describe || describe === ''){
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'describe',
+        message: '请输入发布描述',
+        default: ''
+      }
+    ]);
+    describe = answers.describe
+  }
+  console.log(chalk.green(`本次版本发布说明：${describe}`));
   const spinner = ora('start deploying...').start();
   const routerUrl = '/deploy/new';
   if (!fs.existsSync(resolve('./') + '/dist')) {
@@ -86,7 +98,7 @@ async function deploy(url, describe) {
 }
 
 commander
-  .command('deploy <url> <describe>')
+  .command('deploy <url> [describe]')
   .description('package .zip file and deploy new version to server')
   .action(function (url, describe) {
     deploy(url, describe)
@@ -95,35 +107,60 @@ commander
       });
   });
 
+async function rollback(url,historyId){
+  while (!historyId || historyId === ''){
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'historyId',
+        message: '请输入回滚版本ID',
+        default: ''
+      }
+    ]);
+    historyId = answers.historyId
+  }
+  console.log(chalk.green(`本次回退版本ID：${historyId}`));
+  const spinner = ora('start rollback...').start();
+  const routerUrl = '/deploy/rollback';
+  let form = {
+    historyId: historyId,
+  }
+  request.post({url: url + routerUrl, form: form, json: true}, function (err, rep, body) {
+    if (err) {
+      spinner.fail('rollback failed');
+      printError("rollback failed",err);
+    } else {
+      if (body.code !== 0) {
+        spinner.fail('rollback failed');
+        printFailed('rollback failed',body);
+      } else {
+        spinner.succeed('rollback success');
+        printSuccess(`rollback success`,body);
+      }
+    }
+  });
+}
+
 commander
-  .command('rollback <url> <historyId>')
+  .command('rollback <url> [historyId]')
   .description('rollback project to historyId version')
   .action(function (url, historyId) {
-    const spinner = ora('start rollback...').start();
-    const routerUrl = '/deploy/rollback';
-    let form = {
-      historyId: historyId,
-    }
-    request.post({url: url + routerUrl, form: form, json: true}, function (err, rep, body) {
-      if (err) {
-        spinner.fail('rollback failed');
+    rollback(url,historyId)
+      .catch(function(err){
         printError("rollback failed",err);
-      } else {
-        if (body.code !== 0) {
-          spinner.fail('rollback failed');
-          printFailed('rollback failed',body);
-        } else {
-          spinner.succeed('rollback success');
-          printSuccess(`rollback success`,body);
-        }
-      }
-    });
+      })
   });
 
 commander
-  .command('history <url> <top>')
+  .command('history <url> [top]')
   .description('show project deploy history')
   .action(function (url, top) {
+    if(!top){
+      console.log(chalk.yellow(`You did not pass in the [top] parameter. The default value is 10`));
+      top = 10;
+    }else{
+      console.log(chalk.green(`本次查询条数：${top}`));
+    }
     const spinner = ora('start querying history...').start();
     const routerUrl = '/deploy/list';
     request.get({
