@@ -1,6 +1,6 @@
 {
   "name": "qcweb-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "qcweb fast job",
   "main": "index.js",
   "bin": {

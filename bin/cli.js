@@ -16,7 +16,7 @@ const qcwebProject = {
 }
 
 // 工具版本号
-commander.version('1.0.3');
+commander.version('1.0.4');
 
 commander
   .command('server-init')
@@ -36,9 +36,16 @@ commander
         spinner.fail('download failed');
         console.log(err);
       } else {
+        if (!fs.existsSync(resolve('./')+'/qcwebConfig.json')) {
+          fs.copyFileSync(resolve('./')+'/qcweb/config.json',resolve('./')+'/qcwebConfig.json');
+        }else{
+          console.log(chalk.green(`qcwebConfig.json already exists `));
+        }
         spinner.succeed('download success');
         console.log(chalk.green(`
         Next you should do it
+        
+        config qcwebConfig.json file or config qcweb/config.json file
         
         cd qcweb && npm install
         
