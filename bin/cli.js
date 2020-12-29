@@ -16,7 +16,7 @@ const qcwebProject = {
 }
 
 // 工具版本号
-commander.version('1.0.4');
+commander.version('1.0.5');
 
 commander
   .command('server-init')
